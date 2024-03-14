@@ -1,0 +1,12 @@
+orders_dataset_path: "input/olist_orders_dataset.csv"
+order_items_dataset_path: "input/olist_order_items_dataset.csv"
+
+output_data: "output/products_sales"
+
+order_status_filter: "delivered"
+output_engine: "fastparquet"
+partition_cols:
+  - "product_id"
+
+log_level: "INFO"
+log_file_path: "pipeline.log"
