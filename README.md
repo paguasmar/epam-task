@@ -1,16 +1,16 @@
 # Data Engineering task
-We want to forecast for each item, what are the sales going to be next week.
+*We want to forecast for each item, what are the sales going to be next week.*
 
-Expected output is repository that has the following:
+*Expected output is repository that has the following:*
 
-1. Code to load relevant tables for the task (minimum tables needed), and prepare efficient ETL that builds a dataset on which Data Scientist can continue the work (use pandas) (done)
-    1. The output should be in parquet, well partitioned by product (done)
-    2. The format of output is a single table that can be used for modelling (no need to extract features). (done)
-2. python script to run code, that you can pass arguments to (done)
-3. A couple of simple pytest tests, and run them in github actions at every PR. (done)
-4. Configuration files in yml (done)
-5. Think about the following:
-    1. Which features would you extract and how from the tables? How would you use the remaining tables?
+1. *Code to load relevant tables for the task (minimum tables needed), and prepare efficient ETL that builds a dataset on which Data Scientist can continue the work (use pandas)* **(done)**
+    1. *The output should be in parquet, well partitioned by product* **(done)**
+    2. *The format of output is a single table that can be used for modelling (no need to extract features).* **(done)**
+2. *python script to run code, that you can pass arguments to* **(done)**
+3. *A couple of simple pytest tests, and run them in github actions at every PR.* **(done)**
+4. *Configuration files in yml* **(done)**
+5. *Think about the following:*
+    1. *Which features would you extract and how from the tables? How would you use the remaining tables?*
         
         Choosing the right features to extract from the tables would need an open discussion with the Data Scientists that will ingest the data.
         Besides the number of sales per product per week, one could extract the following:
@@ -21,7 +21,7 @@ Expected output is repository that has the following:
             1. Load table `input/olist_products_dataset.csv` as `df_products`.
             2. Select `product_id` and `product_category_name`.
             3. Join `df_products` with `df_order_items` by `product_id`.
-    2. How would you turn it into an application in production?
+    2. *How would you turn it into an application in production?*
 
         To turn the code into an application for production, we should follow these steps:
 
@@ -34,7 +34,7 @@ Expected output is repository that has the following:
         Data Storage: We should choose an appropriate data storage solution based on the specific requirements of the application. This could be a database or a file system, depending on factors like data volume, complexity, and access patterns.
 
         Performance Optimization: We need to optimize the performance and efficiency of data processing operations. This involves identifying bottlenecks and implementing optimizations to improve the speed and responsiveness of the application.
-    3. How would you design an application if you knew that you would have to build a similar solution for a couple other countries, and the data schema might be different for them, however, you can get the same underlying data?
+    3. *How would you design an application if you knew that you would have to build a similar solution for a couple other countries, and the data schema might be different for them, however, you can get the same underlying data?*
 
         To design an application for multiple countries with potentially different data schemas but the same underlying data, we should follow these steps:
 
