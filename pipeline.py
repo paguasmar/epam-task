@@ -2,11 +2,28 @@ import argparse
 import pandas as pd
 import yaml
 import logging
-from tqdm import tqdm
 
 def setup_logging(log_file_path, log_level):
-    logging.basicConfig(filename=log_file_path, level=log_level,
-                        format='%(asctime)s - %(levelname)s - %(message)s')
+    # Create logger
+    logger = logging.getLogger()
+    logger.setLevel(log_level)
+
+    # Create file handler
+    file_handler = logging.FileHandler(log_file_path)
+    file_handler.setLevel(log_level)
+
+    # Create console handler
+    console_handler = logging.StreamHandler()
+    console_handler.setLevel(log_level)
+
+    # Create formatter and add it to the handlers
+    formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
+    file_handler.setFormatter(formatter)
+    console_handler.setFormatter(formatter)
+
+    # Add the handlers to the logger
+    logger.addHandler(file_handler)
+    logger.addHandler(console_handler)
 
 def load_config(config_file):
     with open(config_file, "r") as f:
@@ -19,6 +36,11 @@ def update_values(original_dict, update_dict):
             original_dict[key] = value
     return original_dict
 
+def calculate_orders_per_product_per_week(df_products_sales):
+    df_products_sales["week"] = df_products_sales["order_purchase_timestamp"].dt.isocalendar().week
+    df_products_sales["year"] = df_products_sales["order_purchase_timestamp"].dt.year
+    return df_products_sales.groupby(["product_id", "year", "week"]).size().reset_index(name="sales")
+
 def main(args):
     # Setup logging
     setup_logging(args.log_file_path, args.log_level)
@@ -27,12 +49,8 @@ def main(args):
     # Load configuration from YAML file
     config = load_config(args.config)
 
-    print(config['orders_dataset_path'])
-
     # Update configuration with command-line arguments
-    config = update_values(config, args)
-
-    print(config['orders_dataset_path'])
+    config = update_values(config, vars(args))
 
     logger.info("Starting pipeline execution.")
 
@@ -55,15 +73,11 @@ def main(args):
 
     # Number of orders per product per week
     logger.info("Calculating number of orders per product per week...")
-    df_products_sales["week"] = df_products_sales["order_purchase_timestamp"].dt.week
-    df_products_sales["year"] = df_products_sales["order_purchase_timestamp"].dt.year
-    df_products_sales_weekly = df_products_sales.groupby(["product_id", "year", "week"]).size().reset_index(name="sales")
+    df_products_sales_weekly = calculate_orders_per_product_per_week(df_products_sales)
 
     # Save df_products_sales_weekly as parquet partitioned by product_id
     logger.info("Saving results to %s...", config['output_path'])
-    with tqdm(total=len(df_products_sales_weekly)) as pbar:
-        df_products_sales_weekly.progress_apply(lambda x: x.to_parquet(config['output_path'], partition_cols=config['partition_cols'], engine=config['output_engine'], index=False), axis=1)
-        pbar.update(1)
+    df_products_sales_weekly.to_parquet("output/products_sales", partition_cols=["product_id"], engine='fastparquet', index=False)
 
     logger.info("Pipeline execution completed successfully.")
 
