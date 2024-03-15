@@ -62,6 +62,13 @@ The pipeline configuration is specified in a YAML file (`pipeline_config.yaml`).
 - `log_level`: Logging level (DEBUG, INFO, WARNING, ERROR, CRITICAL).
 - `log_file_path`: Path to the log file.
 
+## Running the Tests
+The Pytests in this project are automatically executed using GitHub Actions. Whenever code changes are pushed or pull requests are submitted, GitHub Actions runs the Pytests to validate the functionality of our code. You can view the test results directly in the GitHub Actions tab of this repository.
+
+To run the Pytests locally, follow these steps:
+
+- Run Pytest by executing the command pytest.
+
 ## Authors
 
 - [Pedro Águas Marques](https://github.com/paguasmar)
