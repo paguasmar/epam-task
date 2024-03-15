@@ -1,6 +1,4 @@
-# Pipeline README
-
-## Task
+# Data Engineering task
 We want to forecast for each item, what are the sales going to be next week.
 
 Expected output is repository that has the following:
