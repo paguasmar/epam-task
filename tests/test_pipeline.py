@@ -22,6 +22,6 @@ def test_calculate_orders_per_product_per_week(sample_data):
         'week': [1, 1],
         'sales': [2, 1]
     })
-    pd.testing.assert_frame_equal(result, expected_values, check_dtypes=False)
+    pd.testing.assert_frame_equal(result, expected_values, check_dtype=False)
 
 
