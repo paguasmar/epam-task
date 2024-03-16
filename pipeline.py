@@ -96,7 +96,7 @@ def calculate_orders_per_product_per_week(
         pandas.DataFrame:
             DataFrame with the number of orders per product per week.
     """
-    df_copy: DataFrame = df_products_sales.copy()
+    df_copy: DataFrame = df_products_sales.copy(deep=False)
     df_copy["week"] = df_copy["order_purchase_timestamp"].dt.isocalendar().week
     df_copy["year"] = df_copy["order_purchase_timestamp"].dt.year
     return df_copy.groupby(["product_id", "year",

@@ -15,8 +15,8 @@
         Choosing the right features to extract from the tables would need an open discussion with the Data Scientists that will ingest the data.
         Besides the number of sales per product per week, one could extract the following:
         - Average order product price during the week
-            1. Retain the column `price` in `olist_order_items_dataset` (in `pipeline.py` line 68).
-            2. Add the aggregation function `avg` applied to `price` (in `pipeline.py` line 42).
+            1. Retain the column `price` in `olist_order_items_dataset` (in `pipeline.py` line 154).
+            2. Add the aggregation function `avg` applied to `price` (in `pipeline.py` line 102).
         - Product category
             1. Load table `input/olist_products_dataset.csv` as `df_products`.
             2. Select `product_id` and `product_category_name`.
