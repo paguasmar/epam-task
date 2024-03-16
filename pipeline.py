@@ -7,6 +7,10 @@ import pandas as pd
 import yaml
 from pandas import DataFrame
 
+from tqdm import tqdm
+
+import os
+
 
 def setup_logging(log_file_path: str, log_level: str) -> None:
     """
@@ -165,11 +169,14 @@ def main(args: argparse.Namespace) -> None:
 
     # Save df_products_sales_weekly as parquet partitioned by product_id
     logger.info("Saving results to %s...", config['output_path'])
-    df_products_sales_weekly.to_parquet(
-        config['output_path'],
-        partition_cols=config['partition_cols'],
-        engine='fastparquet',
-        index=False)
+
+    # Create the output directory if it doesn't exist
+    if not os.path.exists(config['output_path']):
+        os.makedirs(config['output_path'])
+
+    # Save output in Parquet, partitioned by product
+    for product_id, product_data in tqdm(df_products_sales_weekly.groupby(*config['partition_cols'])):
+        product_data.to_parquet(f"{config['output_path']}/{product_id}.parquet", index=False)
 
     logger.info("Pipeline execution completed successfully.")
 
