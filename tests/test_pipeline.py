@@ -51,6 +51,7 @@ def test_update_values():
 def test_main(tmp_path, caplog):
 
     output_path = f"{tmp_path}/products_sales"
+    log_file_path = f"{tmp_path}/pipeline.log"
     # Mock the call to pipeline.load_config
     with patch('pipeline.load_config') as mock_load_config:
         # Define the dictionary to be returned by pipeline.load_config
@@ -62,7 +63,7 @@ def test_main(tmp_path, caplog):
             "output_engine": "fastparquet",
             "partition_cols": ["product_id"],
             "log_level": "INFO",
-            "log_file_path": f"{tmp_path}/pipeline.log"
+            "log_file_path": log_file_path
             }
         mock_load_config.return_value = config_dict
         
@@ -75,15 +76,27 @@ def test_main(tmp_path, caplog):
     result = pd.read_parquet(output_path)
     pd.testing.assert_frame_equal(result, expected_values, check_dtype=False)
 
+    # Define the expected log messages
+    expected_logs = [
+        "Starting pipeline execution.",
+        "Reading input data...",
+        "Filtering orders by status: delivered",
+        "Selecting relevant columns...",
+        "Joining dataframes...",
+        "Calculating number of orders per product per week...",
+        f"Saving results to {output_path}...",
+        "Pipeline execution completed successfully."
+    ]
+
     # Check if the expected log messages are present
-    assert "Starting pipeline execution." in caplog.text
-    assert "Reading input data..." in caplog.text
-    assert "Filtering orders by status: delivered" in caplog.text
-    assert "Selecting relevant columns..." in caplog.text
-    assert "Joining dataframes..." in caplog.text
-    assert "Calculating number of orders per product per week..." in caplog.text
-    assert f"Saving results to {output_path}..." in caplog.text
-    assert "Pipeline execution completed successfully." in caplog.text
+    for log in expected_logs:
+        assert log in caplog.text
+    
+    # Check if the logs are being written to the correct file
+    with open(log_file_path, 'r') as log_file:
+        log_contents = log_file.read()
+        for log in expected_logs:
+            assert log in log_contents
 
 def test_load_config(tmp_path):
     # Create a temporary config file

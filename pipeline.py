@@ -4,6 +4,7 @@ import yaml
 import logging
 from typing import Dict, Any
 from pandas import DataFrame
+import traceback
 
 def setup_logging(log_file_path: str, log_level: str) -> None:
     """
@@ -106,8 +107,16 @@ def main(args: argparse.Namespace) -> None:
 
     # Read input data
     logger.info("Reading input data...")
-    df_orders: DataFrame = pd.read_csv(config['orders_dataset_path'], index_col="order_id", parse_dates=["order_purchase_timestamp", "order_approved_at", "order_delivered_carrier_date", "order_delivered_customer_date", "order_estimated_delivery_date"])
-    df_order_items: DataFrame = pd.read_csv(config['order_items_dataset_path'])
+    try:
+        df_orders: DataFrame = pd.read_csv(config['orders_dataset_path'], index_col="order_id", parse_dates=["order_purchase_timestamp", "order_approved_at", "order_delivered_carrier_date", "order_delivered_customer_date", "order_estimated_delivery_date"])
+        df_order_items: DataFrame = pd.read_csv(config['order_items_dataset_path'])
+    except FileNotFoundError as e:
+        logger.error("Input data file not found: %s", str(e))
+        return
+    except Exception as e:
+        logger.error("Error occurred while reading input data: %s", str(e))
+        logger.error(traceback.format_exc())
+        return
 
     # Filter df_orders by order_status
     logger.info("Filtering orders by status: %s", config['order_status_filter'])
