@@ -153,6 +153,7 @@ def main(args: argparse.Namespace) -> None:
             config["order_items_dataset_path"],
             usecols=["order_id", "product_id"],
             dtype={"order_id": "str", "product_id": "str"},
+            index_col="order_id",
         )
     except FileNotFoundError as e:
         logger.error("Input data file not found: %s", str(e))
@@ -176,8 +177,8 @@ def main(args: argparse.Namespace) -> None:
 
     # Join df_order_items and df_orders by order_id
     logger.info("Joining dataframes...")
-    df_products_sales: DataFrame = df_order_items.join(
-        df_orders_delivered, on="order_id", how="inner"
+    df_products_sales: DataFrame = df_order_items.merge(
+        df_orders_delivered, left_index=True, right_index=True, how="inner"
     )
 
     # Number of orders per product per week
