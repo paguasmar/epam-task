@@ -1,18 +1,26 @@
 import pandas as pd
 import pytest
 import argparse
-from pipeline import calculate_orders_per_product_per_week, update_values, main, load_config
-from pathlib import Path
+from pipeline import (
+    calculate_orders_per_product_per_week,
+    update_values,
+    main,
+    load_config)
 from unittest.mock import patch
+
 
 @pytest.fixture
 def sample_data():
     # Sample input data
     data = {
-        'order_purchase_timestamp': pd.to_datetime(['2023-01-02', '2023-01-03', '2023-01-04']),
+        'order_purchase_timestamp': pd.to_datetime(
+            ['2023-01-02',
+             '2023-01-03',
+             '2023-01-04']),
         'product_id': [101, 102, 101]
     }
     return pd.DataFrame(data)
+
 
 def test_calculate_orders_per_product_per_week(sample_data):
     # Call the function with sample data
@@ -56,8 +64,10 @@ def test_main(tmp_path, caplog):
     with patch('pipeline.load_config') as mock_load_config:
         # Define the dictionary to be returned by pipeline.load_config
         config_dict = {
-            "orders_dataset_path": "test-resources/in/olist_orders_dataset.csv",
-            "order_items_dataset_path": "test-resources/in/olist_order_items_dataset.csv",
+            "orders_dataset_path":
+                "test-resources/in/olist_orders_dataset.csv",
+            "order_items_dataset_path":
+                "test-resources/in/olist_order_items_dataset.csv",
             "output_path": output_path,
             "order_status_filter": "delivered",
             "output_engine": "fastparquet",
@@ -66,7 +76,7 @@ def test_main(tmp_path, caplog):
             "log_file_path": log_file_path
             }
         mock_load_config.return_value = config_dict
-        
+
         # Run the main function with the sample configuration file
         args = argparse.Namespace(config="")
         main(args)
@@ -91,12 +101,13 @@ def test_main(tmp_path, caplog):
     # Check if the expected log messages are present
     for log in expected_logs:
         assert log in caplog.text
-    
+
     # Check if the logs are being written to the correct file
     with open(log_file_path, 'r') as log_file:
         log_contents = log_file.read()
         for log in expected_logs:
             assert log in log_contents
+
 
 def test_load_config(tmp_path):
     # Create a temporary config file
@@ -119,7 +130,8 @@ def test_load_config(tmp_path):
     # Check if the loaded configuration matches the expected values
     expected_config = {
         "orders_dataset_path": "test-resources/in/olist_orders_dataset.csv",
-        "order_items_dataset_path": "test-resources/in/olist_order_items_dataset.csv",
+        "order_items_dataset_path":
+            "test-resources/in/olist_order_items_dataset.csv",
         "output_path": "test-resources/out/products_sales",
         "order_status_filter": "delivered",
         "output_engine": "fastparquet",
