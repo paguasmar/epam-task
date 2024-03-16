@@ -129,15 +129,10 @@ def main(args: argparse.Namespace) -> None:
     # Read input data
     logger.info("Reading input data...")
     try:
-        df_orders: DataFrame = pd.read_csv(config['orders_dataset_path'],
-                                           index_col="order_id",
-                                           parse_dates=[
-                                               "order_purchase_timestamp",
-                                               "order_approved_at",
-                                               "order_delivered_carrier_date",
-                                               "order_delivered_customer_date",
-                                               "order_estimated_delivery_date"
-                                           ])
+        df_orders: DataFrame = pd.read_csv(
+            config['orders_dataset_path'],
+            index_col="order_id",
+            parse_dates=["order_purchase_timestamp"])
         df_order_items: DataFrame = pd.read_csv(
             config['order_items_dataset_path'])
     except FileNotFoundError as e:
