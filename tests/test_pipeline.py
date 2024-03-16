@@ -1,22 +1,19 @@
+import argparse
+from unittest.mock import patch
+
 import pandas as pd
 import pytest
-import argparse
-from pipeline import (
-    calculate_orders_per_product_per_week,
-    update_values,
-    main,
-    load_config)
-from unittest.mock import patch
+
+from pipeline import (calculate_orders_per_product_per_week, load_config, main,
+                      update_values)
 
 
 @pytest.fixture
 def sample_data():
     # Sample input data
     data = {
-        'order_purchase_timestamp': pd.to_datetime(
-            ['2023-01-02',
-             '2023-01-03',
-             '2023-01-04']),
+        'order_purchase_timestamp':
+        pd.to_datetime(['2023-01-02', '2023-01-03', '2023-01-04']),
         'product_id': [101, 102, 101]
     }
     return pd.DataFrame(data)
@@ -65,16 +62,16 @@ def test_main(tmp_path, caplog):
         # Define the dictionary to be returned by pipeline.load_config
         config_dict = {
             "orders_dataset_path":
-                "test-resources/in/olist_orders_dataset.csv",
+            "test-resources/in/olist_orders_dataset.csv",
             "order_items_dataset_path":
-                "test-resources/in/olist_order_items_dataset.csv",
+            "test-resources/in/olist_order_items_dataset.csv",
             "output_path": output_path,
             "order_status_filter": "delivered",
             "output_engine": "fastparquet",
             "partition_cols": ["product_id"],
             "log_level": "INFO",
             "log_file_path": log_file_path
-            }
+        }
         mock_load_config.return_value = config_dict
 
         # Run the main function with the sample configuration file
@@ -88,11 +85,9 @@ def test_main(tmp_path, caplog):
 
     # Define the expected log messages
     expected_logs = [
-        "Starting pipeline execution.",
-        "Reading input data...",
+        "Starting pipeline execution.", "Reading input data...",
         "Filtering orders by status: delivered",
-        "Selecting relevant columns...",
-        "Joining dataframes...",
+        "Selecting relevant columns...", "Joining dataframes...",
         "Calculating number of orders per product per week...",
         f"Saving results to {output_path}...",
         "Pipeline execution completed successfully."
@@ -131,7 +126,7 @@ def test_load_config(tmp_path):
     expected_config = {
         "orders_dataset_path": "test-resources/in/olist_orders_dataset.csv",
         "order_items_dataset_path":
-            "test-resources/in/olist_order_items_dataset.csv",
+        "test-resources/in/olist_order_items_dataset.csv",
         "output_path": "test-resources/out/products_sales",
         "order_status_filter": "delivered",
         "output_engine": "fastparquet",

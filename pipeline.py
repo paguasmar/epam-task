@@ -1,10 +1,11 @@
 import argparse
+import logging
+import traceback
+from typing import Any, Dict
+
 import pandas as pd
 import yaml
-import logging
-from typing import Dict, Any
 from pandas import DataFrame
-import traceback
 
 
 def setup_logging(log_file_path: str, log_level: str) -> None:
@@ -63,9 +64,8 @@ def load_config(config_file: str) -> Dict[str, Any]:
         return
 
 
-def update_values(
-        original_dict: Dict[str, Any],
-        update_dict: Dict[str, Any]) -> Dict[str, Any]:
+def update_values(original_dict: Dict[str, Any],
+                  update_dict: Dict[str, Any]) -> Dict[str, Any]:
     """
     Update values in the original dictionary with values
     from the update dictionary.
@@ -130,15 +130,15 @@ def main(args: argparse.Namespace) -> None:
     # Read input data
     logger.info("Reading input data...")
     try:
-        df_orders: DataFrame = pd.read_csv(
-            config['orders_dataset_path'],
-            index_col="order_id",
-            parse_dates=[
-                "order_purchase_timestamp",
-                "order_approved_at",
-                "order_delivered_carrier_date",
-                "order_delivered_customer_date",
-                "order_estimated_delivery_date"])
+        df_orders: DataFrame = pd.read_csv(config['orders_dataset_path'],
+                                           index_col="order_id",
+                                           parse_dates=[
+                                               "order_purchase_timestamp",
+                                               "order_approved_at",
+                                               "order_delivered_carrier_date",
+                                               "order_delivered_customer_date",
+                                               "order_estimated_delivery_date"
+                                           ])
         df_order_items: DataFrame = pd.read_csv(
             config['order_items_dataset_path'])
     except FileNotFoundError as e:
@@ -150,9 +150,8 @@ def main(args: argparse.Namespace) -> None:
         return
 
     # Filter df_orders by order_status
-    logger.info(
-        "Filtering orders by status: %s",
-        config['order_status_filter'])
+    logger.info("Filtering orders by status: %s",
+                config['order_status_filter'])
     df_orders_delivered: DataFrame = \
         df_orders[df_orders["order_status"] == config['order_status_filter']]
 
@@ -184,44 +183,37 @@ def main(args: argparse.Namespace) -> None:
 if __name__ == "__main__":
     parser: argparse.ArgumentParser = \
         argparse.ArgumentParser(description="Process data and save results.")
-    parser.add_argument(
-        "--config",
-        type=str,
-        default="pipeline_config.yaml",
-        help="Path to YAML configuration file",
-        required=True)
-    parser.add_argument(
-        "--orders_dataset_path",
-        type=str,
-        help="Path to the orders dataset CSV file")
-    parser.add_argument(
-        "--order_items_dataset_path",
-        type=str,
-        help="Path to the order items dataset CSV file")
-    parser.add_argument(
-        "--output_path",
-        type=str,
-        help="Path to save the output Parquet file")
-    parser.add_argument(
-        "--order_status_filter",
-        type=str,
-        help="Filter orders by status")
+    parser.add_argument("--config",
+                        type=str,
+                        default="pipeline_config.yaml",
+                        help="Path to YAML configuration file",
+                        required=True)
+    parser.add_argument("--orders_dataset_path",
+                        type=str,
+                        help="Path to the orders dataset CSV file")
+    parser.add_argument("--order_items_dataset_path",
+                        type=str,
+                        help="Path to the order items dataset CSV file")
+    parser.add_argument("--output_path",
+                        type=str,
+                        help="Path to save the output Parquet file")
+    parser.add_argument("--order_status_filter",
+                        type=str,
+                        help="Filter orders by status")
     parser.add_argument(
         "--output_engine",
         type=str,
         help="Engine to use for writing the output Parquet file")
-    parser.add_argument(
-        "--partition_cols",
-        nargs='+',
-        help="Columns to partition the output Parquet file")
+    parser.add_argument("--partition_cols",
+                        nargs='+',
+                        help="Columns to partition the output Parquet file")
     parser.add_argument(
         "--log_level",
         type=str,
         help="Logging level (DEBUG, INFO, WARNING, ERROR, CRITICAL)")
-    parser.add_argument(
-        "--log_file_path",
-        type=str,
-        default="pipeline.log",
-        help="Path to the log file")
+    parser.add_argument("--log_file_path",
+                        type=str,
+                        default="pipeline.log",
+                        help="Path to the log file")
     args: argparse.Namespace = parser.parse_args()
     main(args)
