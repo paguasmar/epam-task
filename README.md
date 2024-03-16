@@ -25,26 +25,26 @@
 
         To turn the code into an application for production, we should follow these steps:
 
-        Organize the Code: We should break down the code into smaller functions or classes. This helps make the code easier to understand, maintain, and reuse.
+        - Organize the Code: We should break down the code into smaller functions or classes. This helps make the code easier to understand, maintain, and reuse.
 
-        Testing: It's important to implement more testing to ensure that any changes or updates to the code do not introduce errors. We can do this by adding unit tests and integration tests.
+        - Testing: It's important to implement more testing to ensure that any changes or updates to the code do not introduce errors. We can do this by adding more unit tests and integration tests.
 
-        Error Handling: We need to implement error handling mechanisms, such as exception handling and logging. This helps us handle unexpected situations gracefully and provides meaningful error messages to users.
+        - Error Handling: We need to implement error handling mechanisms, such as exception handling and logging. This helps us handle unexpected situations gracefully and provides meaningful error messages to users.
 
-        Data Storage: We should choose an appropriate data storage solution based on the specific requirements of the application. This could be a database or a file system, depending on factors like data volume, complexity, and access patterns.
+        - Data Storage: We should choose an appropriate data storage solution based on the specific requirements of the application. This could be a database or a file system, depending on factors like data volume, complexity, and access patterns.
 
         Performance Optimization: We need to optimize the performance and efficiency of data processing operations. This involves identifying bottlenecks and implementing optimizations to improve the speed and responsiveness of the application.
     3. *How would you design an application if you knew that you would have to build a similar solution for a couple other countries, and the data schema might be different for them, however, you can get the same underlying data?*
 
         To design an application for multiple countries with potentially different data schemas but the same underlying data, we should follow these steps:
 
-        Modular Design: Organize the application into modules, with each module responsible for a specific task or functionality. This allows for easy swapping of components to accommodate different data schemas for different countries.
+        - Modular Design: Organize the application into modules, with each module responsible for a specific task or functionality. This allows for easy swapping of components to accommodate different data schemas for different countries.
 
-        Data Normalization: Standardize the data into a common format that the entire application can understand. This involves renaming columns and converting data types to ensure consistency across different data schemas.
+        - Data Normalization: Standardize the data into a common format that the entire application can understand. This involves renaming columns and converting data types to ensure consistency across different data schemas.
 
-        Data Ingestion Layer: Implement a data ingestion layer capable of fetching data from various sources, such as databases or APIs. This layer should transform the data into the standardized format before further processing.
+        - Data Ingestion Layer: Implement a data ingestion layer capable of fetching data from various sources, such as databases or APIs. This layer should transform the data into the standardized format before further processing.
 
-        Configuration Management: Use configuration files or database tables to specify the mapping between the source data schema and the common format. This allows for flexibility in adapting to different data schemas without modifying the application code.
+        - Configuration Management: Use configuration files or database tables to specify the mapping between the source data schema and the common format. This allows for flexibility in adapting to different data schemas without modifying the application code.
 
 ## Overview
 
