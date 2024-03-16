@@ -139,9 +139,13 @@ def main(args: argparse.Namespace) -> None:
             config["orders_dataset_path"],
             index_col="order_id",
             parse_dates=["order_purchase_timestamp"],
+            usecols=["order_id", "order_status", "order_purchase_timestamp"],
+            dtype={"order_status": "category", "order_id": "str"},
         )
         df_order_items: DataFrame = pd.read_csv(
-            config["order_items_dataset_path"]
+            config["order_items_dataset_path"],
+            usecols=["order_id", "product_id"],
+            dtype={"order_id": "str", "product_id": "str"},
         )
     except FileNotFoundError as e:
         logger.error("Input data file not found: %s", str(e))
