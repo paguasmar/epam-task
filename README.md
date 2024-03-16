@@ -92,8 +92,39 @@ To run this pipeline, you need:
 5. Run the pipeline:
 
    ```bash
-   python pipeline.py --config pipeline_config.yaml
+   python pipeline.py [arguments]
    ```
+
+## Command Line Arguments
+1. `--config`
+    - **Type**: String
+    - **Default**: pipeline_config.yaml
+    - **Description**: Path to the YAML configuration file.
+2. `--orders_dataset_path`
+    - **Type**: String
+    - **Description**: Path to the orders dataset CSV file.
+3. `--order_items_dataset_path`
+    - **Type**: String
+    - **Description**: Path to the order items dataset CSV file.
+4. `--output_path`
+    - **Type**: String
+    - **Description**: Path to save the output Parquet file.
+5. `--order_status_filter`
+    - **Type**: String
+    - **Description**: Filter orders by status.
+6. `--output_engine`
+    - **Type**: String
+    - **Description**: Engine to use for writing the output Parquet file.
+7. `--partition_cols`
+    - **Type**: List of Strings
+    - **Description**: Columns to partition the output Parquet file.
+8. `--log_level`
+    - **Type**: String
+    - **Description**: Logging level (DEBUG, INFO, WARNING, ERROR, CRITICAL).
+9. `--log_file_path`
+    - **Type**: String
+    - **Default**: pipeline.log
+    - **Description**: Path to the log file.
 
 ## Configuration
 

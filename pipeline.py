@@ -180,8 +180,7 @@ if __name__ == "__main__":
     parser.add_argument("--config",
                         type=str,
                         default="pipeline_config.yaml",
-                        help="Path to YAML configuration file",
-                        required=True)
+                        help="Path to YAML configuration file")
     parser.add_argument("--orders_dataset_path",
                         type=str,
                         help="Path to the orders dataset CSV file")
