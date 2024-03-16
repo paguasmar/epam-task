@@ -119,6 +119,15 @@ def calculate_orders_per_product_per_week(
 
 
 def read_input_data(config: Dict[str, Any]) -> Tuple[DataFrame, DataFrame]:
+    """
+    Read input data from the given configuration.
+
+    Args:
+        config (dict): Configuration dictionary.
+
+    Returns:
+        tuple: DataFrames for orders and order items.
+    """
     logger: logging.Logger = logging.getLogger(__name__)
     # Read input data
     logger.info("Reading input data...")
@@ -149,6 +158,16 @@ def read_input_data(config: Dict[str, Any]) -> Tuple[DataFrame, DataFrame]:
 def filter_orders_by_status(
     df_orders: DataFrame, order_status_filter: str
 ) -> DataFrame:
+    """
+    Filter the orders DataFrame based on the given order status.
+
+    Args:
+        df_orders (DataFrame): Orders DataFrame.
+        order_status_filter (str): Order status to filter.
+
+    Returns:
+        DataFrame: Filtered orders DataFrame.
+    """
     logger: logging.Logger = logging.getLogger(__name__)
     # Filter df_orders by order_status
     logger.info("Filtering orders by status: %s", order_status_filter)
@@ -156,6 +175,15 @@ def filter_orders_by_status(
 
 
 def select_relevant_columns(df_orders_delivered: DataFrame) -> DataFrame:
+    """
+    Select relevant columns from the orders DataFrame.
+
+    Args:
+        df_orders_delivered (DataFrame): Orders DataFrame.
+
+    Returns:
+        DataFrame: DataFrame with relevant columns.
+    """
     logger: logging.Logger = logging.getLogger(__name__)
     logger.info("Selecting relevant columns...")
     return df_orders_delivered[["order_purchase_timestamp"]]
@@ -164,6 +192,16 @@ def select_relevant_columns(df_orders_delivered: DataFrame) -> DataFrame:
 def join_dataframes(
     df_order_items: DataFrame, df_orders_delivered: DataFrame
 ) -> DataFrame:
+    """
+    Join the order items DataFrame and the filtered orders DataFrame.
+
+    Args:
+        df_order_items (DataFrame): Order items DataFrame.
+        df_orders_delivered (DataFrame): Filtered orders DataFrame.
+
+    Returns:
+        DataFrame: Joined DataFrame.
+    """
     logger: logging.Logger = logging.getLogger(__name__)
     logger.info("Joining dataframes...")
     return df_order_items.merge(
@@ -174,6 +212,17 @@ def join_dataframes(
 def save_results(
     df_products_sales_weekly: DataFrame, config: Dict[str, Any]
 ) -> None:
+    """
+    Save the results to the specified location.
+
+    Args:
+        df_products_sales_weekly (DataFrame):
+            DataFrame with weekly product sales data.
+        config (dict): Configuration dictionary.
+
+    Returns:
+        None
+    """
     logger: logging.Logger = logging.getLogger(__name__)
     logger.info("Saving results to %s...", config["output_path"])
     df_products_sales_weekly.to_parquet(
