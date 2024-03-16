@@ -1,7 +1,7 @@
 import argparse
 import logging
 import traceback
-from typing import Any, Dict
+from typing import Any, Dict, Tuple
 
 import pandas as pd
 import yaml
@@ -99,6 +99,8 @@ def calculate_orders_per_product_per_week(
         pandas.DataFrame:
             DataFrame with the number of orders per product per week.
     """
+    logger: logging.Logger = logging.getLogger(__name__)
+    logger.info("Calculating number of orders per product per week...")
     df_copy: DataFrame = df_products_sales.copy(deep=False)
     df_copy["week"] = (
         df_copy["order_purchase_timestamp"]
@@ -116,29 +118,8 @@ def calculate_orders_per_product_per_week(
     )
 
 
-def main(args: argparse.Namespace) -> None:
-    """
-    Main function to execute the pipeline.
-
-    Args:
-        args (Namespace): Command-line arguments.
-
-    Returns:
-        None
-    """
-
-    # Load configuration from YAML file
-    config: Dict[str, Any] = load_config(args.config)
-
-    # Update configuration with command-line arguments
-    config = update_values(config, vars(args))
-
-    # Setup logging
-    setup_logging(config["log_file_path"], config["log_level"])
+def read_input_data(config: Dict[str, Any]) -> Tuple[DataFrame, DataFrame]:
     logger: logging.Logger = logging.getLogger(__name__)
-
-    logger.info("Starting pipeline execution.")
-
     # Read input data
     logger.info("Reading input data...")
     try:
@@ -155,6 +136,7 @@ def main(args: argparse.Namespace) -> None:
             dtype={"order_id": "str", "product_id": "str"},
             index_col="order_id",
         )
+        return df_orders, df_order_items
     except FileNotFoundError as e:
         logger.error("Input data file not found: %s", str(e))
         return
@@ -163,31 +145,36 @@ def main(args: argparse.Namespace) -> None:
         logger.error(traceback.format_exc())
         return
 
+
+def filter_orders_by_status(
+    df_orders: DataFrame, order_status_filter: str
+) -> DataFrame:
+    logger: logging.Logger = logging.getLogger(__name__)
     # Filter df_orders by order_status
-    logger.info(
-        "Filtering orders by status: %s", config["order_status_filter"]
-    )
-    df_orders_delivered: DataFrame = df_orders[
-        df_orders["order_status"] == config["order_status_filter"]
-    ]
+    logger.info("Filtering orders by status: %s", order_status_filter)
+    return df_orders[df_orders["order_status"] == order_status_filter]
 
-    # Select the columns order_id, order_purchase_timestamp
+
+def select_relevant_columns(df_orders_delivered: DataFrame) -> DataFrame:
+    logger: logging.Logger = logging.getLogger(__name__)
     logger.info("Selecting relevant columns...")
-    df_orders_delivered = df_orders_delivered[["order_purchase_timestamp"]]
+    return df_orders_delivered[["order_purchase_timestamp"]]
 
-    # Join df_order_items and df_orders by order_id
+
+def join_dataframes(
+    df_order_items: DataFrame, df_orders_delivered: DataFrame
+) -> DataFrame:
+    logger: logging.Logger = logging.getLogger(__name__)
     logger.info("Joining dataframes...")
-    df_products_sales: DataFrame = df_order_items.merge(
+    return df_order_items.merge(
         df_orders_delivered, left_index=True, right_index=True, how="inner"
     )
 
-    # Number of orders per product per week
-    logger.info("Calculating number of orders per product per week...")
-    df_products_sales_weekly: DataFrame = (
-        calculate_orders_per_product_per_week(df_products_sales)
-    )
 
-    # Save df_products_sales_weekly as parquet partitioned by product_id
+def save_results(
+    df_products_sales_weekly: DataFrame, config: Dict[str, Any]
+) -> None:
+    logger: logging.Logger = logging.getLogger(__name__)
     logger.info("Saving results to %s...", config["output_path"])
     df_products_sales_weekly.to_parquet(
         config["output_path"],
@@ -195,6 +182,42 @@ def main(args: argparse.Namespace) -> None:
         engine="fastparquet",
         index=False,
     )
+
+
+def main(args: argparse.Namespace) -> None:
+    """
+    Main function to execute the pipeline.
+
+    Args:
+        args (Namespace): Command-line arguments.
+
+    Returns:
+        None
+    """
+    config: Dict[str, Any] = load_config(args.config)
+
+    # Update configuration with command-line arguments
+    config = update_values(config, vars(args))
+    setup_logging(config["log_file_path"], config["log_level"])
+    logger: logging.Logger = logging.getLogger(__name__)
+    logger.info("Starting pipeline execution.")
+
+    df_orders: DataFrame
+    df_order_items: DataFrame
+    df_orders, df_order_items = read_input_data(config)
+    df_orders_delivered: DataFrame = filter_orders_by_status(
+        df_orders, config["order_status_filter"]
+    )
+    df_orders_delivered: DataFrame = select_relevant_columns(
+        df_orders_delivered
+    )
+    df_products_sales: DataFrame = join_dataframes(
+        df_order_items, df_orders_delivered
+    )
+    df_products_sales_weekly: DataFrame = (
+        calculate_orders_per_product_per_week(df_products_sales)
+    )
+    save_results(df_products_sales_weekly, config)
 
     logger.info("Pipeline execution completed successfully.")
 
