@@ -101,9 +101,13 @@ def calculate_orders_per_product_per_week(
     """
     df_copy: DataFrame = df_products_sales.copy(deep=False)
     df_copy["week"] = (
-        df_copy["order_purchase_timestamp"].dt.isocalendar().week.astype("uint8")
+        df_copy["order_purchase_timestamp"]
+        .dt.isocalendar()
+        .week.astype("uint8")
     )
-    df_copy["year"] = df_copy["order_purchase_timestamp"].dt.year.astype("uint16")
+    df_copy["year"] = df_copy["order_purchase_timestamp"].dt.year.astype(
+        "uint16"
+    )
     return (
         df_copy.groupby(["product_id", "year", "week"])
         .size()
