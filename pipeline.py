@@ -100,12 +100,15 @@ def calculate_orders_per_product_per_week(
             DataFrame with the number of orders per product per week.
     """
     df_copy: DataFrame = df_products_sales.copy(deep=False)
-    df_copy["week"] = df_copy["order_purchase_timestamp"].dt.isocalendar().week
-    df_copy["year"] = df_copy["order_purchase_timestamp"].dt.year
+    df_copy["week"] = (
+        df_copy["order_purchase_timestamp"].dt.isocalendar().week.astype("uint8")
+    )
+    df_copy["year"] = df_copy["order_purchase_timestamp"].dt.year.astype("uint16")
     return (
         df_copy.groupby(["product_id", "year", "week"])
         .size()
         .reset_index(name="sales")
+        .astype({"sales": "uint32"})
     )
 
 
@@ -156,9 +159,7 @@ def main(args: argparse.Namespace) -> None:
         return
 
     # Filter df_orders by order_status
-    logger.info(
-        "Filtering orders by status: %s", config["order_status_filter"]
-    )
+    logger.info("Filtering orders by status: %s", config["order_status_filter"])
     df_orders_delivered: DataFrame = df_orders[
         df_orders["order_status"] == config["order_status_filter"]
     ]
@@ -175,8 +176,8 @@ def main(args: argparse.Namespace) -> None:
 
     # Number of orders per product per week
     logger.info("Calculating number of orders per product per week...")
-    df_products_sales_weekly: DataFrame = (
-        calculate_orders_per_product_per_week(df_products_sales)
+    df_products_sales_weekly: DataFrame = calculate_orders_per_product_per_week(
+        df_products_sales
     )
 
     # Save df_products_sales_weekly as parquet partitioned by product_id
