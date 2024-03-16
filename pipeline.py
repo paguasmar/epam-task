@@ -6,6 +6,7 @@ from typing import Any, Dict, Tuple
 import pandas as pd
 import yaml
 from pandas import DataFrame
+import time
 
 
 def setup_logging(log_file_path: str, log_level: str) -> None:
@@ -145,6 +146,15 @@ def read_input_data(config: Dict[str, Any]) -> Tuple[DataFrame, DataFrame]:
             dtype={"order_id": "str", "product_id": "str"},
             index_col="order_id",
         )
+
+        logger.info(
+            "Memory usage of df_orders: %.2f MB",
+            df_orders.memory_usage(deep=True).sum() / (1024 * 1024),
+        )
+        logger.info(
+            "Memory usage of df_order_items: %.2f MB",
+            df_order_items.memory_usage(deep=True).sum() / (1024 * 1024),
+        )
         return df_orders, df_order_items
     except FileNotFoundError as e:
         logger.error("Input data file not found: %s", str(e))
@@ -251,6 +261,8 @@ def main(args: argparse.Namespace) -> None:
     logger: logging.Logger = logging.getLogger(__name__)
     logger.info("Starting pipeline execution.")
 
+    start_time = time.time()
+
     df_orders: DataFrame
     df_order_items: DataFrame
     df_orders, df_order_items = read_input_data(config)
@@ -268,7 +280,10 @@ def main(args: argparse.Namespace) -> None:
     )
     save_results(df_products_sales_weekly, config)
 
+    end_time = time.time()
+    execution_time = end_time - start_time
     logger.info("Pipeline execution completed successfully.")
+    logger.info("Execution time: %.2f seconds", execution_time)
 
 
 if __name__ == "__main__":
