@@ -4,17 +4,22 @@ from unittest.mock import patch
 import pandas as pd
 import pytest
 
-from pipeline import (calculate_orders_per_product_per_week, load_config, main,
-                      update_values)
+from pipeline import (
+    calculate_orders_per_product_per_week,
+    load_config,
+    main,
+    update_values,
+)
 
 
 @pytest.fixture
 def sample_data():
     # Sample input data
     data = {
-        'order_purchase_timestamp':
-        pd.to_datetime(['2023-01-02', '2023-01-03', '2023-01-04']),
-        'product_id': [101, 102, 101]
+        "order_purchase_timestamp": pd.to_datetime(
+            ["2023-01-02", "2023-01-03", "2023-01-04"]
+        ),
+        "product_id": [101, 102, 101],
     }
     return pd.DataFrame(data)
 
@@ -24,32 +29,34 @@ def test_calculate_orders_per_product_per_week(sample_data):
     result = calculate_orders_per_product_per_week(sample_data)
 
     # Check if the values are calculated correctly
-    expected_values = pd.DataFrame({
-        'product_id': [101, 102],
-        'year': [2023, 2023],
-        'week': [1, 1],
-        'sales': [2, 1]
-    })
+    expected_values = pd.DataFrame(
+        {
+            "product_id": [101, 102],
+            "year": [2023, 2023],
+            "week": [1, 1],
+            "sales": [2, 1],
+        }
+    )
     pd.testing.assert_frame_equal(result, expected_values, check_dtype=False)
 
 
 def test_update_values():
     # Test case 1: Update all values
-    original_dict = {'a': 1, 'b': 2, 'c': 3}
-    update_dict = {'a': 10, 'b': 20, 'c': 30}
-    expected_result = {'a': 10, 'b': 20, 'c': 30}
+    original_dict = {"a": 1, "b": 2, "c": 3}
+    update_dict = {"a": 10, "b": 20, "c": 30}
+    expected_result = {"a": 10, "b": 20, "c": 30}
     assert update_values(original_dict, update_dict) == expected_result
 
     # Test case 2: Update some values
-    original_dict = {'a': 1, 'b': 2, 'c': 3}
-    update_dict = {'b': 20, 'c': None}
-    expected_result = {'a': 1, 'b': 20, 'c': 3}
+    original_dict = {"a": 1, "b": 2, "c": 3}
+    update_dict = {"b": 20, "c": None}
+    expected_result = {"a": 1, "b": 20, "c": 3}
     assert update_values(original_dict, update_dict) == expected_result
 
     # Test case 3: Update no values
-    original_dict = {'a': 1, 'b': 2, 'c': 3}
+    original_dict = {"a": 1, "b": 2, "c": 3}
     update_dict = {}
-    expected_result = {'a': 1, 'b': 2, 'c': 3}
+    expected_result = {"a": 1, "b": 2, "c": 3}
     assert update_values(original_dict, update_dict) == expected_result
 
 
@@ -58,7 +65,7 @@ def test_main(tmp_path, caplog):
     output_path = f"{tmp_path}/products_sales"
     log_file_path = f"{tmp_path}/pipeline.log"
     # Mock the call to pipeline.load_config
-    with patch('pipeline.load_config') as mock_load_config:
+    with patch("pipeline.load_config") as mock_load_config:
         # Define the dictionary to be returned by pipeline.load_config
         config_dict = {
             "orders_dataset_path":
@@ -70,7 +77,7 @@ def test_main(tmp_path, caplog):
             "output_engine": "fastparquet",
             "partition_cols": ["product_id"],
             "log_level": "INFO",
-            "log_file_path": log_file_path
+            "log_file_path": log_file_path,
         }
         mock_load_config.return_value = config_dict
 
@@ -85,12 +92,14 @@ def test_main(tmp_path, caplog):
 
     # Define the expected log messages
     expected_logs = [
-        "Starting pipeline execution.", "Reading input data...",
+        "Starting pipeline execution.",
+        "Reading input data...",
         "Filtering orders by status: delivered",
-        "Selecting relevant columns...", "Joining dataframes...",
+        "Selecting relevant columns...",
+        "Joining dataframes...",
         "Calculating number of orders per product per week...",
         f"Saving results to {output_path}...",
-        "Pipeline execution completed successfully."
+        "Pipeline execution completed successfully.",
     ]
 
     # Check if the expected log messages are present
@@ -98,7 +107,7 @@ def test_main(tmp_path, caplog):
         assert log in caplog.text
 
     # Check if the logs are being written to the correct file
-    with open(log_file_path, 'r') as log_file:
+    with open(log_file_path, "r") as log_file:
         log_contents = log_file.read()
         for log in expected_logs:
             assert log in log_contents
@@ -107,7 +116,8 @@ def test_main(tmp_path, caplog):
 def test_load_config(tmp_path):
     # Create a temporary config file
     config_file = tmp_path / "config.yaml"
-    config_file.write_text("""
+    config_file.write_text(
+        """
     orders_dataset_path: "test-resources/in/olist_orders_dataset.csv"
     order_items_dataset_path: "test-resources/in/olist_order_items_dataset.csv"
     output_path: "test-resources/out/products_sales"
@@ -117,7 +127,8 @@ def test_load_config(tmp_path):
       - "product_id"
     log_level: "INFO"
     log_file_path: "pipeline.log"
-    """)
+    """
+    )
 
     # Call the load_config function
     config = load_config(str(config_file))
@@ -132,6 +143,6 @@ def test_load_config(tmp_path):
         "output_engine": "fastparquet",
         "partition_cols": ["product_id"],
         "log_level": "INFO",
-        "log_file_path": "pipeline.log"
+        "log_file_path": "pipeline.log",
     }
     assert config == expected_config
