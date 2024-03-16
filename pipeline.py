@@ -163,7 +163,9 @@ def main(args: argparse.Namespace) -> None:
         return
 
     # Filter df_orders by order_status
-    logger.info("Filtering orders by status: %s", config["order_status_filter"])
+    logger.info(
+        "Filtering orders by status: %s", config["order_status_filter"]
+    )
     df_orders_delivered: DataFrame = df_orders[
         df_orders["order_status"] == config["order_status_filter"]
     ]
@@ -180,8 +182,8 @@ def main(args: argparse.Namespace) -> None:
 
     # Number of orders per product per week
     logger.info("Calculating number of orders per product per week...")
-    df_products_sales_weekly: DataFrame = calculate_orders_per_product_per_week(
-        df_products_sales
+    df_products_sales_weekly: DataFrame = (
+        calculate_orders_per_product_per_week(df_products_sales)
     )
 
     # Save df_products_sales_weekly as parquet partitioned by product_id
