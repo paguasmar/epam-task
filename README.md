@@ -15,8 +15,8 @@
         Choosing the right features to extract from the tables would need an open discussion with the Data Scientists that will ingest the data.
         Besides the number of sales per product per week, one could extract the following:
         - Average order product price during the week
-            1. Retain the column `price` in `olist_order_items_dataset` (in `pipeline.py` line 154).
-            2. Add the aggregation function `avg` applied to `price` (in `pipeline.py` line 102).
+            1. Retain the column `price` in `olist_order_items_dataset` (in `pipeline.py` line 144).
+            2. Add the aggregation function `avg` applied to `price` (in `pipeline.py` line 114).
         - Product category
             1. Load table `input/olist_products_dataset.csv` as `df_products`.
             2. Select `product_id` and `product_category_name`.
@@ -33,7 +33,9 @@
 
         - Data Storage: We should choose an appropriate data storage solution based on the specific requirements of the application. This could be a database or a file system, depending on factors like data volume, complexity, and access patterns.
 
-        Performance Optimization: We need to optimize the performance and efficiency of data processing operations. This involves identifying bottlenecks and implementing optimizations to improve the speed and responsiveness of the application.
+        - Performance Optimization: We need to optimize the performance and efficiency of data processing operations. This involves identifying bottlenecks and implementing optimizations to improve the speed and responsiveness of the application.
+
+        - Scalability: If the data volume or complexity increases significantly, and the processing time becomes a bottleneck, it may be more efficient to use PySpark instead of pandas. PySpark is a distributed computing framework that can handle large-scale data processing by leveraging the power of distributed computing clusters. It allows for parallel processing and can scale horizontally by adding more worker nodes to the cluster. By using PySpark, we can achieve faster and more scalable data processing for big data scenarios.
     3. *How would you design an application if you knew that you would have to build a similar solution for a couple other countries, and the data schema might be different for them, however, you can get the same underlying data?*
 
         To design an application for multiple countries with potentially different data schemas but the same underlying data, we should follow these steps:
