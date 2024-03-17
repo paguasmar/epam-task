@@ -23,7 +23,15 @@
             3. Join `df_products` with `df_order_items` by `product_id`.
     2. *How would you turn it into an application in production?*
 
-        To turn the code into an application for production, we should follow these steps:
+        Before answering I would need an answer to the following questions:
+            - How large is the dataset we are working with? Is it the same size as the current one?
+            - How frequently does the data get updated or refreshed?
+            - Are there any known issues or inconsistencies in the data that need to be handled?
+            - Do we have any specific performance targets or benchmarks that the ETL process needs to meet?
+            - What are the dependencies for running the ETL process (e.g., database connections, external APIs)?
+            - Are there any data governance policies or security requirements that need to be adhered to in the ETL process?
+
+        It depends on the specific case, but one could follow these general steps to turn the code into an application for production:
 
         - Organize the Code: We should break down the code into smaller functions or classes. This helps make the code easier to understand, maintain, and reuse.
 
@@ -38,7 +46,9 @@
         - Scalability: If the data volume or complexity increases significantly, and the processing time becomes a bottleneck, it may be more efficient to use PySpark instead of pandas. PySpark is a distributed computing framework that can handle large-scale data processing by leveraging the power of distributed computing clusters. It allows for parallel processing and can scale horizontally by adding more worker nodes to the cluster. By using PySpark, we can achieve faster and more scalable data processing for big data scenarios.
     3. *How would you design an application if you knew that you would have to build a similar solution for a couple other countries, and the data schema might be different for them, however, you can get the same underlying data?*
 
-        To design an application for multiple countries with potentially different data schemas but the same underlying data, we should follow these steps:
+        The same questions of the previous question apply here.
+
+        It depends, but to design an application for multiple countries with potentially different data schemas but the same underlying data, we could follow these general steps:
 
         - Modular Design: Organize the application into modules, with each module responsible for a specific task or functionality. This allows for easy swapping of components to accommodate different data schemas for different countries.
 
