@@ -60,10 +60,10 @@ def load_config(config_file: str) -> Dict[str, Any]:
         return config
     except FileNotFoundError:
         logging.error(f"Configuration file not found: {config_file}")
-        return
+        return {}
     except yaml.YAMLError as e:
         logging.error(f"Error parsing configuration file: {e}")
-        return
+        return {}
 
 
 def update_values(
@@ -238,7 +238,7 @@ def save_results(
     df_products_sales_weekly.to_parquet(
         config["output_path"],
         partition_cols=config["partition_cols"],
-        engine="fastparquet",
+        engine=config["output_engine"],
         index=False,
     )
 
