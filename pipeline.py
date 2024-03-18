@@ -132,37 +132,29 @@ def read_input_data(config: Dict[str, Any]) -> Tuple[DataFrame, DataFrame]:
     logger: logging.Logger = logging.getLogger(__name__)
     # Read input data
     logger.info("Reading input data...")
-    try:
-        df_orders: DataFrame = pd.read_csv(
-            config["orders_dataset_path"],
-            index_col="order_id",
-            parse_dates=["order_purchase_timestamp"],
-            usecols=["order_id", "order_status", "order_purchase_timestamp"],
-            dtype={"order_status": "category", "order_id": "str"},
-        )
-        df_order_items: DataFrame = pd.read_csv(
-            config["order_items_dataset_path"],
-            usecols=["order_id", "product_id"],
-            dtype={"order_id": "str", "product_id": "str"},
-            index_col="order_id",
-        )
+    df_orders: DataFrame = pd.read_csv(
+        config["orders_dataset_path"],
+        index_col="order_id",
+        parse_dates=["order_purchase_timestamp"],
+        usecols=["order_id", "order_status", "order_purchase_timestamp"],
+        dtype={"order_status": "category", "order_id": "str"},
+    )
+    df_order_items: DataFrame = pd.read_csv(
+        config["order_items_dataset_path"],
+        usecols=["order_id", "product_id"],
+        dtype={"order_id": "str", "product_id": "str"},
+        index_col="order_id",
+    )
 
-        logger.info(
-            "Memory usage of df_orders: %.2f MB",
-            df_orders.memory_usage(deep=True).sum() / (1024 * 1024),
-        )
-        logger.info(
-            "Memory usage of df_order_items: %.2f MB",
-            df_order_items.memory_usage(deep=True).sum() / (1024 * 1024),
-        )
-        return df_orders, df_order_items
-    except FileNotFoundError as e:
-        logger.error("Input data file not found: %s", str(e))
-        return
-    except Exception as e:
-        logger.error("Error occurred while reading input data: %s", str(e))
-        logger.error(traceback.format_exc())
-        return
+    logger.info(
+        "Memory usage of df_orders: %.2f MB",
+        df_orders.memory_usage(deep=True).sum() / (1024 * 1024),
+    )
+    logger.info(
+        "Memory usage of df_order_items: %.2f MB",
+        df_order_items.memory_usage(deep=True).sum() / (1024 * 1024),
+    )
+    return df_orders, df_order_items
 
 
 def filter_orders_by_status(
@@ -253,37 +245,45 @@ def main(args: argparse.Namespace) -> None:
     Returns:
         None
     """
-    config: Dict[str, Any] = load_config(args.config)
+    try:
+        config: Dict[str, Any] = load_config(args.config)
 
-    # Update configuration with command-line arguments
-    config = update_values(config, vars(args))
-    setup_logging(config["log_file_path"], config["log_level"])
-    logger: logging.Logger = logging.getLogger(__name__)
-    logger.info("Starting pipeline execution.")
+        # Update configuration with command-line arguments
+        config = update_values(config, vars(args))
+        setup_logging(config["log_file_path"], config["log_level"])
+        logger: logging.Logger = logging.getLogger(__name__)
+        logger.info("Starting pipeline execution.")
 
-    start_time = time.time()
+        start_time = time.time()
 
-    df_orders: DataFrame
-    df_order_items: DataFrame
-    df_orders, df_order_items = read_input_data(config)
-    df_orders_delivered: DataFrame = filter_orders_by_status(
-        df_orders, config["order_status_filter"]
-    )
-    df_orders_delivered: DataFrame = select_relevant_columns(
-        df_orders_delivered
-    )
-    df_products_sales: DataFrame = join_dataframes(
-        df_order_items, df_orders_delivered
-    )
-    df_products_sales_weekly: DataFrame = (
-        calculate_orders_per_product_per_week(df_products_sales)
-    )
-    save_results(df_products_sales_weekly, config)
+        df_orders: DataFrame
+        df_order_items: DataFrame
+        df_orders, df_order_items = read_input_data(config)
+        df_orders_delivered: DataFrame = filter_orders_by_status(
+            df_orders, config["order_status_filter"]
+        )
+        df_orders_delivered: DataFrame = select_relevant_columns(
+            df_orders_delivered
+        )
+        df_products_sales: DataFrame = join_dataframes(
+            df_order_items, df_orders_delivered
+        )
+        df_products_sales_weekly: DataFrame = (
+            calculate_orders_per_product_per_week(df_products_sales)
+        )
+        save_results(df_products_sales_weekly, config)
 
-    end_time = time.time()
-    execution_time = end_time - start_time
-    logger.info("Pipeline execution completed successfully.")
-    logger.info("Execution time: %.2f seconds", execution_time)
+        end_time = time.time()
+        execution_time = end_time - start_time
+        logger.info("Pipeline execution completed successfully.")
+        logger.info("Execution time: %.2f seconds", execution_time)
+    except FileNotFoundError as e:
+        logger.error("Input data file not found: %s", str(e))
+        return
+    except Exception as e:
+        logger.error("An error occurred: %s", str(e))
+        logger.error(traceback.format_exc())
+        return
 
 
 if __name__ == "__main__":
